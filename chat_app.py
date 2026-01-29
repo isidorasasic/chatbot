@@ -73,7 +73,7 @@ class ChatbotApp:
                     # print(self.memory.all())
 
                 #DEBUG    
-                print(self.memory.all())
+                # print(self.memory.all())
 
                 # Second call after tools executed
                 follow_up = self.client.responses.create(

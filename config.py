@@ -5,7 +5,7 @@ def parse_args():
     Build and parse command-line arguments for the console chatbot.
 
     Parsed arguments:
-        - model (str): The model name to use (for example, "gpt-4.1").
+        - model (str): The model name to use (for example, "l2-gpt-4.1").
         - temperature (float): Sampling temperature for generation.
         - enable_tools (bool): Boolean flag controlling whether tool calls are enabled.
         - system_prompt (str): A system message used to initialize the conversation memory.
