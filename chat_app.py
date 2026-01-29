@@ -2,11 +2,16 @@ from openai import OpenAI
 import os
 from memory import ConversationMemory
 from tools import TOOLS, use_tool
-from summarization import summarize
-import json
 
 
 class ChatbotApp:
+    """
+    Console-based chat application that wraps the OpenAI Responses API, 
+    maintains conversational memory, and optionally executes tool calls returned by the model.
+
+    Args
+    - config: An object containing parsed arguments.
+    """
     def __init__(self, config):
 
         # Create OpenAI chat client for interaction with models

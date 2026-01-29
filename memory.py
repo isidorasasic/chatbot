@@ -1,5 +1,9 @@
 
 class ConversationMemory:
+    """
+    In-memory conversation store that tracks system, user, and assistant messages, 
+    as well as tool/function call requests.
+    """
     def __init__(self, system_prompt: str):
         self.messages = [{"role": "system", "content": system_prompt}]
 
