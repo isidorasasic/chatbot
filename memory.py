@@ -5,16 +5,34 @@ class ConversationMemory:
     as well as tool/function call requests.
     """
     def __init__(self, system_prompt: str):
-        self.messages = [{"role": "system", "content": system_prompt}]
+        self.messages = [{
+            "role": "system",
+            "content": [{
+                "type": "input_text",
+                "text": system_prompt
+            }]
+        }]
 
     def add_user(self, content: str):
-        self.messages.append({"role": "user", "content": content})
+        self.messages.append({
+            "role": "user", 
+            "content": [{
+                "type": "input_text",
+                "text": content
+            }]
+        })
 
     def add_assistant(self, content: str):
-        self.messages.append({"role": "assistant", "content": content})
+        self.messages.append({
+            "role": "assistant",
+            "content": [{
+                "type": "output_text",
+                "text": content
+            }]
+        })
 
-    def add_response_tool(self, response_function_tool_call: object):
-        self.messages.append(response_function_tool_call[0])
+    def add_response_tool(self, response: object):
+        self.messages.extend([item.model_dump() for item in response.output])
 
     def add_tool(self, tool_call_id: str, content: str):
         self.messages.append({
