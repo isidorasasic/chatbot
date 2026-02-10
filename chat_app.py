@@ -2,6 +2,7 @@ from openai import OpenAI
 import os
 from memory import ConversationMemory
 from tools import TOOLS, use_tool
+from summarization import is_summary, build_summary_request
 
 
 class ChatbotApp:
@@ -35,14 +36,21 @@ class ChatbotApp:
 
             self.memory.add_user(user_input)
 
+            # check if user asks for conversation summary
+            if is_summary(user_input):
+                print("\nenetrd in summary mode\n")
+                input_text = build_summary_request(self.memory.all())
+                tools = None
+            else:
+                input_text=self.memory.all()
+                tools=TOOLS if self.enable_tools else None
+
             response = self.client.responses.create(
                 model=self.model,
                 temperature=self.temperature,
-                input=self.memory.all(),
-                tools=TOOLS if self.enable_tools else None
+                input=input_text,
+                tools=tools
             )
-
-            self.memory.add_response_tool(response.output)
 
             # debug
             # print(self.memory.all())
@@ -56,9 +64,8 @@ class ChatbotApp:
             # print(tool_calls)
 
             if tool_calls:
-                # print(len(tool_calls))
                 for tool_call in tool_calls:
-                    # print(tool_call.name)
+                    self.memory.add_response_tool(response)
                     tool_result = use_tool(tool_call)
 
                     #  DEBUG
@@ -80,7 +87,7 @@ class ChatbotApp:
                     model=self.model,
                     temperature=self.temperature,
                     input=self.memory.all(),
-                    tools=TOOLS
+                    tools=TOOLS if self.enable_tools else None
                 )
 
                 assistant_reply = follow_up.output_text
@@ -90,6 +97,6 @@ class ChatbotApp:
             self.memory.add_assistant(assistant_reply)
 
             # DEBUG
-            # print(self.memory.all())
+            print(self.memory.all())
 
             print(f"\nAssistant: {assistant_reply}\n")
