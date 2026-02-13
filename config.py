@@ -18,7 +18,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description="console chatbot")
     parser.add_argument("--model", default="l2-gpt-4.1-nano")
     parser.add_argument("--temperature", type=float, default=1)
-    parser.add_argument("--enable-tools", default=True)
+    parser.add_argument("--enable-tools", action="store_true", default=True)
+    parser.add_argument("--disable_tools", action="store_false", dest="enable_tools")
     parser.add_argument(
         "--system-prompt",
         default=(
