@@ -32,9 +32,9 @@ class ConversationMemory:
         })
 
     def add_response_tool(self, response: object):
-        self.messages.extend([item.model_dump() for item in response.output])
+        self.messages.append(response.output[0].model_dump())
 
-    def add_tool(self, tool_call_id: str, content: str):
+    def add_tool_output(self, tool_call_id: str, content: str):
         self.messages.append({
             "type": "function_call_output",
             "call_id": tool_call_id,

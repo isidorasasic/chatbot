@@ -24,7 +24,9 @@ class ChatbotApp:
         self.model = config.model
         self.temperature = config.temperature
         self.enable_tools = config.enable_tools
-        self.memory = ConversationMemory(config.system_prompt)
+        self.memory = ConversationMemory(config.system_prompt.format(
+            date_tools_status="ENABLED" if config.enable_tools else "DISABLED"
+        ))
 
     def run(self):
         print("Chatbot started. Type 'exit' to quit.\n")
@@ -38,7 +40,7 @@ class ChatbotApp:
 
             # check if user asks for conversation summary
             if is_summary(user_input):
-                print("\nenetrd in summary mode\n")
+                print("\nEntered summary mode\n")
                 input_text = build_summary_request(self.memory.all())
                 tools = None
             else:
@@ -56,43 +58,35 @@ class ChatbotApp:
             # print(self.memory.all())
 
             # Check for tool calls
-            tool_calls = [
-                item for item in response.output
-                if item.type == "function_call"
-            ]
+            tool_call = next(
+                (item for item in response.output if item.type == "function_call"),
+                None
+            )
 
-            # print(tool_calls)
+            while tool_call:
+                self.memory.add_response_tool(response)
+                tool_result = use_tool(tool_call)
+                self.memory.add_tool_output(
+                    tool_call_id=tool_call.call_id,
+                    content=tool_result,
+                )
 
-            if tool_calls:
-                for tool_call in tool_calls:
-                    self.memory.add_response_tool(response)
-                    tool_result = use_tool(tool_call)
-
-                    #  DEBUG
-                    # print(tool_result)
-
-                    self.memory.add_tool(
-                        tool_call_id=tool_call.call_id,
-                        content=tool_result,
-                    )
-
-                    # DEBUG
-                    # print(self.memory.all())
-
-                #DEBUG    
+                # DEBUG
                 # print(self.memory.all())
 
-                # Second call after tools executed
-                follow_up = self.client.responses.create(
+                response = self.client.responses.create(
                     model=self.model,
                     temperature=self.temperature,
                     input=self.memory.all(),
                     tools=TOOLS if self.enable_tools else None
                 )
 
-                assistant_reply = follow_up.output_text
-            else:
-                assistant_reply = response.output_text
+                tool_call = next(
+                    (item for item in response.output if item.type == "function_call"),
+                    None
+                )
+
+            assistant_reply = response.output_text
 
             self.memory.add_assistant(assistant_reply)
 
