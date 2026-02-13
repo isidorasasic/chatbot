@@ -4,7 +4,7 @@ SUMMARY_KEYWORDS = [
     "summarize",
     "summary",
     "summarization"
-    # "sum",
+    "sum up",
     "recap",
     "tl;dr",
     "what did we talk about",
